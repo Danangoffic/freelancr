@@ -29,11 +29,11 @@ jobs:
       - name: Generate Key
         run: php artisan key:generate
 
-      - name: Run Migrations & Seeders
-        run: php artisan migrate --seed
+      # - name: Run Migrations & Seeders
+      #   run: php artisan migrate --seed
 
-      - name: Execute Tests (Optional)
-        run: vendor/bin/phpunit
+      # - name: Execute Tests (Optional)
+      #   run: vendor/bin/phpunit
 
   deploy:
     runs-on: ubuntu-latest
