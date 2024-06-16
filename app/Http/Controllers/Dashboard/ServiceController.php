@@ -19,6 +19,10 @@ use App\Http\Requests\Dashboard\Service\UpdateServiceRequest;
 
 class ServiceController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +30,7 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $services = Service::with('thumbnails')->where('users_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
+        $services = Service::with('thumbnails')->where('user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
         return view('pages.Dashboard.service.index', compact('services'));
     }
 
@@ -48,14 +52,15 @@ class ServiceController extends Controller
      */
     public function store(StoreServiceRequest $request)
     {
+        Log::debug('request : ', $request->all());
         try {
             $data = $request->all();
-            $data['users_id'] = Auth::user()->id;
+            $data['user_id'] = Auth::user()->id;
             $service = Service::create($data);
-            foreach ($data['advantages'] as $k =>$v) {
+            foreach ($data['advantage-service'] as $k =>$v) {
                 $advantage_service = new AdvantageService;
                 $advantage_service->service_id = $service->id;
-                $advantage_service->advantage_id = $v;
+                $advantage_service->advantage = $v;
                 $advantage_service->save();
             }
 
@@ -86,10 +91,12 @@ class ServiceController extends Controller
 
 
             toast()->success('success create service');
-            return redirect()->route('dashboard.service.index')->with('success', 'Service created successfully.');
+            return redirect()->route('member.service.index')->with('success', 'Service created successfully.');
         } catch (\Throwable $th) {
             //throw $th;
-            return redirect()->back()->with('error', 'Service creation failed.');
+            Log::error('failed create a service with : ' . $th->getMessage(), ['throw' => $th]);
+            toast()->error('Failed create service, Please try again');
+            return redirect()->back()->with('error', 'Service creation failed with ' . $th->getMessage())->withInput();
         }
 
     }
@@ -102,7 +109,7 @@ class ServiceController extends Controller
      */
     public function show($id)
     {
-        return abort(404);
+        return abort(404, 'Detail Service Tidak ditemukan, hanya ada pada landing Service');
         // return view('pages.Dashboard.service.detail');
     }
 
@@ -134,10 +141,10 @@ class ServiceController extends Controller
         $data = $request->all();
         $service->update($data);
 
-        foreach($data['advantages'] as $k =>$v) {
-            $advantage_service = AdvantageService::firstOrNew(['service_id' => $service->id, 'advantage_id' => $v]);
+        foreach($data['advantage-service'] as $k =>$v) {
+            $advantage_service = AdvantageService::firstOrNew(['service_id' => $service->id, 'advantage' => $v]);
             $advantage_service->service_id = $service->id;
-            $advantage_service->advantage_id = $v;
+            $advantage_service->advantage = $v;
             $advantage_service->save();
         }
 

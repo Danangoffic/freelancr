@@ -97,7 +97,7 @@ class ProfileController extends Controller
         $data_detail_user = $request_detail_user->all();
 
         // get photo
-        $get_detail_user = DetailUser::where('users_id', Auth::user()->id)->first();
+        $get_detail_user = DetailUser::where('user_id', Auth::user()->id)->first();
         $current_photo = $get_detail_user->photo;
         if(isset($data_detail_user['photo'])){
             $data = 'storage/' . $current_photo;
@@ -159,8 +159,15 @@ class ProfileController extends Controller
 
     public function delete()
     {
+        if(!Auth::check()){
+            return back()->with('error', "unauthorized!");
+        }
         $detail_user_id = DetailUser::where('user_id', Auth::user()->id)->first();
         $path_photo = $detail_user_id->photo;
+        if($path_photo == null){
+            toast()->success('No Photo Existed!');
+            return back();
+        }
 
         $data = DetailUser::find($detail_user_id->id);
         $data->photo = null;
@@ -173,6 +180,6 @@ class ProfileController extends Controller
             FacadesFile::delete('storage/app/public' . $path_photo);
         }
         toast()->success('Delete photo success');
-        return back();
+        return redirect()->route('member.profile.index');
     }
 }

@@ -27,7 +27,7 @@ class Service extends Model
      * @var array
      */
     protected $fillable = [
-        'users_id',
+        'user_id',
         'title',
         'description',
         'delivery_time',

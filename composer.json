@@ -17,7 +17,7 @@
         "laravel/sanctum": "^2.15",
         "laravel/tinker": "^2.0",
         "livewire/livewire": "^2.5",
-        "realrashid/sweet-alert": "^7.1"
+        "realrashid/sweet-alert": "^7.2"
     },
     "require-dev": {
         "facade/ignition": "^2.3.6",

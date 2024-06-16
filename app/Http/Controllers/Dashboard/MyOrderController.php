@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Order;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Dashboard\MyOrder\UpdateMyOrderRequest;
 
 class MyOrderController extends Controller
 {
 
-    public function accepted($id)
+    public function __construct()
     {
-        # code...
+        $this->middleware('auth');
     }
 
-    public function rejected($id)
-    {
-        # code...
-    }
+
 
     /**
      * Display a listing of the resource.
@@ -28,8 +27,8 @@ class MyOrderController extends Controller
     {
         $order_request = Order::with(['user_buyer.detail_user', 'user_freelancer', 'service', 'status'])
                             ->where(function($query){
-                                $query->where('freelancer_id', auth()->user()->id)
-                                    ->orWhere('buyer_id', auth()->user()->id);
+                                $query->where('freelancer_id', Auth::user()->id);
+                                    // ->orWhere('buyer_id', Auth::user()->id);
                             })
                             ->orderBy('created_at', 'desc')
                             ->get();
@@ -39,7 +38,7 @@ class MyOrderController extends Controller
     public function submit($id)
     {
         $order_request = Order::with(['user_buyer.detail_user', 'user_freelancer', 'service', 'status'])
-                            ->where('freelancer_id', auth()->user()->id)
+                            ->where('freelancer_id', Auth::user()->id)
                             ->where('id', $id)
                             ->orderBy('created_at', 'desc')
                             ->first();
@@ -49,7 +48,7 @@ class MyOrderController extends Controller
     public function submit_post(Request $request, $id)
     {
         $order_request = Order::with(['user_buyer.detail_user', 'user_freelancer', 'service', 'status'])
-                            ->where('freelancer_id', auth()->user()->id)
+                            ->where('freelancer_id', Auth::user()->id)
                             ->where('id', $id)
                             ->orderBy('created_at', 'desc')
                             ->first();
@@ -67,7 +66,7 @@ class MyOrderController extends Controller
      */
     public function create()
     {
-        //
+        return abort(404);
     }
 
     /**
@@ -78,7 +77,7 @@ class MyOrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return abort(404);
     }
 
     /**
@@ -87,9 +86,20 @@ class MyOrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Order $order)
     {
-        return view('pages.dashboard.order.detail');
+        $order = $order->load([
+                    'service' => function($query){
+                        $query->with(['thumbnails', 'advantageUsers', 'advantageServices', 'taglines']);
+                    },
+                    'status'
+                ]);
+             $thumbnails = $order->service->thumbnails;
+             $advantage_user = $order->service->advantageUsers;
+             $advantage_service = $order->service->advantageServices;
+             $tagline = $order->service->taglines;
+
+        return view('pages.dashboard.order.detail', compact('order', 'thumbnails', 'advantage_user', 'advantage_service', 'tagline'));
     }
 
     /**
@@ -98,14 +108,10 @@ class MyOrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Order $order)
     {
-        $order_request = Order::with(['user_buyer.detail_user', 'user_freelancer', 'service', 'status'])
-                            ->where('freelancer_id', auth()->user()->id)
-                            ->where('id', $id)
-                            ->orderBy('created_at', 'desc')
-                            ->first();
-        return view('pages.Dashboard.order.submit', compact('order_request'));
+        $order = $order->load(['user_buyer.detail_user', 'user_freelancer', 'service', 'status']);
+        return view('pages.Dashboard.order.submit', compact('order'));
     }
 
     /**
@@ -115,9 +121,22 @@ class MyOrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateMyOrderRequest $request, Order $order)
     {
-        //
+        $data = $request->all();
+
+        if($request->hasFile('file')){
+            $data['file'] = $request->file('file')->store('assets/order/attachment', 'public');
+        }
+
+        $order = Order::find($order->id);
+        $order->update([
+            'file' => $data['file'],
+            'note' => $data['note']
+        ]);
+
+        toast()->success('Submit Order successfully!');
+        return redirect()->route('member.order.index')->with('success', 'Submit Order successfully!');
     }
 
     /**
@@ -128,6 +147,36 @@ class MyOrderController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return abort(404);
+    }
+
+    public function accepted($id)
+    {
+        $order = Order::find($id);
+        if ($order) {
+            // Update the order status to 1
+            $order->update([
+                'order_status_id' => 2
+            ]);
+            toast()->success('Order accepted successfully!');
+            return redirect()->route('member.order.index')->with('success', 'Order accepted successfully!');
+        } else {
+            abort(404);
+        }
+    }
+
+    public function rejected($id)
+    {
+        $order = Order::find($id);
+        if ($order) {
+            // Update the order status to 3
+            $order->update([
+                'order_status_id' => 3
+            ]);
+            toast()->success('Order rejected successfully!');
+            return redirect()->route('member.order.index')->with('success', 'Order rejected successfully!');
+        } else {
+            abort(404);
+        }
     }
 }
