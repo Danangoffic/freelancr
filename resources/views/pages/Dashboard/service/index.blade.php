@@ -101,10 +101,16 @@
                                                         @if (count($s->thumbnails) > 0)
                                                             <img class="object-cover w-full h-full rounded"
                                                                 src="{{ url(Storage::url($s->thumbnails[0]->thumbnail)) }}"
-                                                                alt="" loading="lazy" />
+                                                                alt="thumbnail" loading="lazy" />
                                                             <div class="absolute inset-0 rounded-full shadow-inner"
                                                                 aria-hidden="true">
                                                             </div>
+                                                        @else
+                                                        <svg class="w-full h-full text-gray-300" fill="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path
+                                                                d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                        </svg>
                                                         @endif
                                                     </div>
                                                     <div>
@@ -116,16 +122,16 @@
                                                 </div>
                                             </td>
                                             <td class="px-1 py-5 text-sm">
-                                                {{ auth()->user()->detail_user->role }}
+                                                {{ $s->user->detail_user->role }}
                                             </td>
                                             <td class="px-1 py-5 text-sm">
-                                                Rp&nbsp;{{ number_format($s->price, 0, ',', '.') }}
+                                                {{ 'Rp '. number_format($s->price, 0, ',', '.') }}
                                             </td>
                                             <td class="px-1 py-5 text-sm text-green-500 text-md">
-                                                Active
+                                                {{'Active'}}
                                             </td>
                                             <td class="px-1 py-5 text-sm">
-                                                <a href="{{ route('member.service.edit', $s->id) }}"
+                                                <a href="{{ route('member.service.edit', $s) }}"
                                                     class="px-4 py-2 mt-2 text-left text-white rounded-xl bg-serv-email">
                                                     {{__('Edit Service')}}
                                                 </a>

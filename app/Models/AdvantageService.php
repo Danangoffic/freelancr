@@ -23,4 +23,8 @@ class AdvantageService extends Model
         'service_id',
         'advantage',
     ];
+
+    public function service() {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
 }

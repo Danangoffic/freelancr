@@ -30,7 +30,7 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $services = Service::with('thumbnails')->where('user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
+        $services = Service::with('thumbnails', 'user.detail_user')->where('user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
         return view('pages.Dashboard.service.index', compact('services'));
     }
 
@@ -141,30 +141,75 @@ class ServiceController extends Controller
         $data = $request->all();
         $service->update($data);
 
-        foreach($data['advantage-service'] as $k =>$v) {
-            $advantage_service = AdvantageService::firstOrNew(['service_id' => $service->id, 'advantage' => $v]);
-            $advantage_service->service_id = $service->id;
-            $advantage_service->advantage = $v;
-            $advantage_service->save();
+        if($request->has('advantage-services')){
+            foreach($data['advantage-services'] as $k =>$v) {
+                $advantage_service = AdvantageService::find($k);
+                $advantage_service->service_id = $service->id;
+                $advantage_service->advantage = $v;
+                $advantage_service->save();
+            }
         }
 
-        foreach($data['user_advantages'] as $k => $v) {
-            $user_advantage = AdvantageUser::firstOrNew(['service_id' => $service->id, 'advantage' => $v]);
-            $user_advantage->service_id = $service->id;
-            $user_advantage->advantage = $v;
-            $user_advantage->save();
+        if($request->has('advantage-service')){
+            foreach($data['advantage-service'] as $k =>$v) {
+                $advantage_service = new AdvantageService();
+                $advantage_service->service_id = $service->id;
+                $advantage_service->advantage = $v;
+                $advantage_service->save();
+            }
         }
 
-        foreach($data['tagline'] as $k => $v){
-            $tagline = Tagline::firstOrNew(['service_id' => $service->id, 'tagline' => $v]);
-            $tagline->service_id = $service->id;
-            $tagline->tagline = $v;
-            $tagline->save();
+        if($request->has('user-advantages')){
+            foreach($data['user-advantages'] as $k => $v) {
+                $user_advantage = AdvantageUser::find($k);
+                $user_advantage->service_id = $service->id;
+                $user_advantage->advantage = $v;
+                $user_advantage->save();
+            }
+        }
+
+        if($request->has('user-advantage')){
+            foreach($data['user-advantage'] as $k => $v) {
+                $user_advantage = new AdvantageUser();
+                $user_advantage->service_id = $service->id;
+                $user_advantage->advantage = $v;
+                $user_advantage->save();
+            }
+        }
+
+        if($request->has('taglines')){
+            foreach($data['taglines'] as $k => $v){
+                $tagline = Tagline::find($k);
+                $tagline->service_id = $service->id;
+                $tagline->tagline = $v;
+                $tagline->save();
+            }
+        }
+
+        if($request->has('tagline')){
+            foreach($data['tagline'] as $k => $v){
+                $tagline = new Tagline();
+                $tagline->service_id = $service->id;
+                $tagline->tagline = $v;
+                $tagline->save();
+            }
         }
 
         if($request->hasFile('thumbnails')){
-            foreach ($request->file('thumbnails') as $file) {
+            foreach ($request->file('thumbnails') as $file => $f) {
                 $thumbnail = ThumbnailService::find($file);
+                $thumbnail_title = $f->store('assets/service/thumbnail', 'public');
+
+
+                $thumbnail->service_id = $service->id;
+                $thumbnail->thumbnail = $thumbnail_title;
+                $thumbnail->save();
+            }
+        }
+
+        if($request->hasFile('thumbnail')){
+            foreach ($request->file('thumbnail') as $file) {
+                $thumbnail = new ThumbnailService();
                 $thumbnail_title = $file->store('assets/service/thumbnail', 'public');
 
 

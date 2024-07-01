@@ -34,7 +34,8 @@
             <div class="grid gap-5 md:grid-cols-12">
                 <main class="col-span-12 p-4 md:pt-0">
                     <div class="px-2 py-2 mt-2 bg-white rounded-xl">
-                        <form action="{{ route('member.service.update', $service) }}" id="form-update-service" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('member.service.update', $service) }}" id="form-update-service" method="POST"
+                            enctype="multipart/form-data">
                             @method('PUT')
                             @csrf
                             <div class="">
@@ -66,27 +67,14 @@
                                             <p class="block mb-3 text-sm text-gray-700">
                                                 Hal apa aja yang didapakan dari service kamu?
                                             </p>
-                                            @forelse ($advantage_service as $item => $v)
-                                                <input placeholder="Keunggulan service kamu ke-1" type="text" name="advantage-service[]" value="{{$v->advantage}}"
+                                            @foreach ($advantage_service as $item => $v)
+                                                <input placeholder="Keunggulan service kamu ke-1" type="text" name="advantage-services[{{$v->id}}]" value="{{$v->advantage}}"
                                                     id="advantage-1" autocomplete="advantage-1"
                                                     class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                                                 @error('advantage-service[]')
                                                     <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
                                                 @enderror
-                                            @empty
-                                                <input placeholder="Keunggulan service kamu ke-2" type="text" name="advantage-service[]" value="{{old('advantage-service[]')}}"
-                                                    id="advantage-2" autocomplete="advantage-2"
-                                                    class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('advantage-service[]')
-                                                    <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
-                                                <input placeholder="Keunggulan service kamu ke-3" type="text" name="advantage-service[]" value="{{old('advantage-service[]')}}"
-                                                    id="advantage-3" autocomplete="advantage-3"
-                                                    class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('advantage-service[]')
-                                                    <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
-                                            @endforelse
+                                            @endforeach
                                             <div id="newServicesRow"></div>
                                             <button type="button"
                                                 class="inline-flex justify-center px-3 py-2 mt-3 text-xs font-medium text-gray-700 bg-gray-100 border border-transparent rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
@@ -140,40 +128,19 @@
                                             <label for="thumbnails"
                                                 class="block mb-3 font-medium text-gray-700 text-md">{{__('Thumbnail Service Feeds')}}</label>
                                             <div class="my-4">
-                                                <label for="thumbnails-1"
-                                                    class="w-full cursor-pointer px-3 py-2 text-sm font-medium leading-4 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:border-green-500">
-                                                    Choose File
-                                                </label>
-                                                <input placeholder="thumbnail 1" type="file" name="thumbnails[]"
-                                                    hidden id="thumbnails-1" autocomplete="thumbnails-1"
-                                                    class="hidden w-full py-3 pl-5 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('thumbnails[]')
-                                                    <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
-                                            </div>
-                                            <div class="my-4">
-                                                <label for="thumbnails-2"
-                                                    class="w-full cursor-pointer px-3 py-2 text-sm font-medium leading-4 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:border-green-500">
-                                                    Choose File
-                                                </label>
-                                                <input placeholder="thumbnail 2" type="file" name="thumbnails[]"
-                                                    hidden id="thumbnails-1" autocomplete="thumbnails-1"
-                                                    class="hidden w-full py-3 pl-5 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('thumbnails[]')
-                                                    <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
-                                            </div>
-                                            <div class="my-4">
-                                                <label for="thumbnails-3"
-                                                    class="w-full cursor-pointer px-3 py-2 text-sm font-medium leading-4 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:border-green-500">
-                                                    Choose File
-                                                </label>
-                                                <input placeholder="thumbnail 3" type="file" name="thumbnails[]"
-                                                    hidden id="thumbnails-2" autocomplete="thumbnails-2"
-                                                    class="hidden w-full py-3 pl-5 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('thumbnails[]')
-                                                    <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
+                                                <div class="grid grid-cols lg:grid-cols-3 md:grid-cols-2 gap-4">
+                                                    @forelse ($thumbnails as $tsi)
+                                                        <div class="mb-2">
+                                                            <img src="{{url(Storage::url($tsi->thumbnail))}}" alt="thumbnail"
+                                                            class="inline object-cover w-20 h-20 rounded" for="choose">
+
+                                                            <input placeholder="Thumbnail" type="file" name="thumbnails[{{$tsi->id}}]" id="thumbnails" autocomplete="thumbnails"
+                                                            class="block w-full py-3 pl-5 mt-3 border-gray-300 shadow-sm focus:ring-green-500 sm:text-sm">
+                                                        </div>
+                                                    @empty
+
+                                                    @endforelse
+                                                </div>
                                             </div>
                                             <div id="newThumbnailRow"></div>
                                             <button type="button"
@@ -189,33 +156,14 @@
                                             <label for="user-advantages"
                                                 class="block mb-3 font-medium text-gray-700 text-md">Keunggulan
                                                 kamu</label>
-                                            @forelse ($user_advantages as $item => $v)
-                                                <input placeholder="Keunggulan 1" type="text" name="user_advantages[]" value="{{$v->advantage}}"
+                                            @foreach ($user_advantages as $item => $v)
+                                                <input placeholder="Keunggulan 1" type="text" name="user-advantages[{{$v->id}}]" value="{{$v->advantage}}"
                                                     id="user-advantages-1" autocomplete="user-advantages-1"
                                                     class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                                                 @error('user_advantages[]')
                                                         <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
                                                 @enderror
-                                            @empty
-                                                <input placeholder="Keunggulan 1" type="text" name="user_advantages[]" value="{{old('user_advantages[]')}}"
-                                                        id="user-advantages-1" autocomplete="user-advantages-1"
-                                                        class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('user_advantages[]')
-                                                        <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
-                                                <input placeholder="Keunggulan 2" type="text" name="user_advantages[]" value="{{old('user_advantages[]')}}"
-                                                    id="user-advantages-2" autocomplete="user-advantages-2"
-                                                    class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('user_advantages[]')
-                                                        <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
-                                                <input placeholder="Keunggulan 3" type="text" name="user_advantages[]" value="{{old('user_advantages[]')}}"
-                                                    id="user-advantages-3" autocomplete="user-advantages-3"
-                                                    class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
-                                                @error('user_advantages[]')
-                                                        <p class="text-red-500 text-sm mb-3">{{ $message }}</p>
-                                                @enderror
-                                            @endforelse
+                                            @endforeach
                                             <div id="newAdvantagesRow"></div>
                                             <button type="button"
                                                 class="inline-flex justify-center px-3 py-2 mt-3 text-xs font-medium text-gray-700 bg-gray-100 border border-transparent rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
@@ -243,7 +191,7 @@
                                                 Tagline <span lass="text-gray-400">(Optional)</span>
                                             </label>
                                             @foreach ($taglines as $item)
-                                                <input placeholder="Keunggulan" type="text" name="tagline[]" id="tagline" autocomplete="tagline" value="{{$item->tagline}}"
+                                                <input placeholder="Keunggulan" type="text" name="taglines[{{$item->id}}]" id="tagline" autocomplete="tagline" value="{{$item->tagline}}"
                                                 class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                                             @endforeach
                                             <div id="newTaglineRow"></div>
@@ -264,9 +212,9 @@
                                         class="inline-flex justify-center px-4 py-2 mr-4 text-sm font-medium text-gray-700 bg-white border border-gray-600 rounded-lg shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
                                         Cancel
                                     </a>
-                                    <button type="submit"
+                                    <button type="submit" onclick="return confirmSubmit()"
                                         class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                        Create Service
+                                        Update Service
                                     </button>
                                 </div>
                             </div>
@@ -292,7 +240,7 @@
         $("#addAdvantagesRow").click(function() {
             var html = '';
             html +=
-                `<input placeholder="Keunggulan Kamu" type="text" name="user_advantages[]" id="user-${nextKeunggulanMember}" autocomplete="user-${nextKeunggulanMember}"
+                `<input placeholder="Keunggulan Kamu" type="text" name="user-advantage[]" id="user-${nextKeunggulanMember}" autocomplete="user-${nextKeunggulanMember}"
                 class="block w-full py-3 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">`;
             $('#newAdvantagesRow').append(html);
         });
@@ -338,7 +286,7 @@
                     class="w-full cursor-pointer px-3 py-2 text-sm font-medium leading-4 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:border-green-500">
                     Choose File
                 </label>
-                <input placeholder="Thumbnail ${nextThumbnails}" hidden type="file" name="thumbnails[]" id="thumbnails-${nextThumbnails}" autocomplete="" class="hiddne w-full py-3 pl-5 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                <input placeholder="Thumbnail ${nextThumbnails}" hidden type="file" name="thumbnail[]" id="thumbnails-${nextThumbnails}" autocomplete="" class="hiddne w-full py-3 pl-5 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm">
                 </div>
                 `;
 

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'My Order')
 @section('content')
-    @if($order_request->count() == 0)
+    {{-- @if($order_request->count() == 0)
     <div class="flex h-screen">
         <div class="m-auto text-center">
             <img src="{{asset('images/empty-illustration.svg')}}" alt="" class="w-48 mx-auto">
@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>
-    @else
+    @else --}}
     <main class="h-full overflow-y-auto">
         <div class="container mx-auto">
             <div class="grid w-full gap-5 px-10 mx-auto md:grid-cols-12">
@@ -29,7 +29,7 @@
                         My Orders
                     </h2>
                     <p class="text-sm text-gray-400">
-                        3 Total Orders
+                        {{auth()->user()->order_freelancers()->count()}} Total Orders
                     </p>
                 </div>
                 <div class="col-span-4 lg:text-right">
@@ -225,5 +225,5 @@
             </div>
         </section>
     </main>
-    @endif
+    {{-- @endif --}}
 @endsection
